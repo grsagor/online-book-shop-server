@@ -37,6 +37,13 @@ async function run() {
             const books = await booksCollection.find(query).toArray();
             res.send(books);
         });
+
+        app.get('/books/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = {categoryID: id};
+            const books = await booksCollection.find(query).toArray();
+            res.send(books);
+        });
     }
     finally{
 
