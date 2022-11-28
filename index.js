@@ -46,12 +46,26 @@ async function run() {
             res.send(books);
         });
 
+        /* Bokkingssssssssssssssssssss */
         app.post('/bookings', async (req, res) => {
             const body = req.body;
             console.log(body)
             const result = await bookingCollection.insertOne(body);
             res.send(result);
-        })
+        });
+
+        app.get('/bookings', async (req, res) => {
+            let query = {};
+
+            if(req.query.email){
+                query = {
+                    email: req.query.email
+                }
+            };
+
+            const bookings = await bookingCollection.find(query).toArray();
+            res.send(bookings);
+        });
     }
     finally{
 
