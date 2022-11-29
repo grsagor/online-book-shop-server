@@ -121,7 +121,7 @@ async function run() {
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             res.send( {isAdmin: user?.role === 'admin'} );
-        })
+        });
 
         app.put('/users/admin/:id',verifyJWT, async(req, res) => {
             const decodedEmail = req.decoded.email;
@@ -141,7 +141,16 @@ async function run() {
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
             res.send(result);
-        })
+        });
+
+        /* selleeeeeeeeeeeeeerrrrrrrrrrrrrrrrr */
+        app.get('/users/seller/:email', async(req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            res.send( {isSeller: user?.role === 'Seller'} );
+        });
+
     }
     finally{
 
