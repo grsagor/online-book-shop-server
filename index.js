@@ -37,6 +37,7 @@ async function run() {
         const booksCollection = client.db('assignment-12').collection('books');
         const bookingCollection = client.db('assignment-12').collection('bookings');
         const usersCollection = client.db('assignment-12').collection('users');
+        const advertiseCollection = client.db('assignment-12').collection('advertise');
 
         /* Categories */
         app.get('/categories', async (req, res) => {
@@ -55,6 +56,12 @@ async function run() {
                 }
             };
 
+            if(req.query.sellerEmail){
+                query = {
+                    sellerEmail: req.query.sellerEmail
+                }
+            };
+
             const books = await booksCollection.find(query).toArray();
             res.send(books);
         });
@@ -66,6 +73,13 @@ async function run() {
             res.send(books);
         });
 
+        /* Post Book */
+        app.post('/books', async (req, res) => {
+            const body = req.body;
+            const result = await booksCollection.insertOne(body);
+            res.send(result);
+        });
+
         /* Bokkingssssssssssssssssssss */
         app.post('/bookings', async (req, res) => {
             const body = req.body;
@@ -73,11 +87,7 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/bookings', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded.email;
-            if(req.query.email !== decodedEmail){
-                return res.status(403).send({message: 'forbidden message'});
-            }
+        app.get('/bookings', async (req, res) => {
             let query = {};
             // console.log(req.headers.authorization);
             if(req.query.email){
@@ -103,15 +113,30 @@ async function run() {
             console.log(user);
             res.status(403).send({accessToken: ''});
         })
-
+/* User Add */
         app.post('/users', async (req, res) => {
             const body = req.body;
             const result = await usersCollection.insertOne(body);
             res.send(result);
         });
 
+        /* User Delete */
+        app.delete('/user/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const users = await usersCollection.deleteOne(query);
+            res.send(users);
+        })
+
         app.get('/users', async (req, res) => {
             let query = {};
+
+            if(req.query.role){
+                query = {
+                    role: req.query.role
+                }
+            };
+
             const users = await usersCollection.find(query).toArray();
             res.send(users);
         });
@@ -149,6 +174,19 @@ async function run() {
             const query = { email: email };
             const user = await usersCollection.findOne(query);
             res.send( {isSeller: user?.role === 'Seller'} );
+        });
+
+        /* Advertisement */
+        app.post('/advertise', async (req, res) => {
+            const body = req.body;
+            const result = await advertiseCollection.insertOne(body);
+            res.send(result);
+        });
+
+        app.get('/advertise', async (req, res) => {
+            let query = {};
+            const result = await advertiseCollection.find(query).toArray();
+            res.send(result);
         });
 
     }
