@@ -62,6 +62,12 @@ async function run() {
                 }
             };
 
+            if(req.query.advertise){
+                query = {
+                    advertise: req.query.advertise
+                }
+            };
+
             const books = await booksCollection.find(query).toArray();
             res.send(books);
         });
@@ -77,6 +83,30 @@ async function run() {
         app.post('/books', async (req, res) => {
             const body = req.body;
             const result = await booksCollection.insertOne(body);
+            res.send(result);
+        });
+
+        /* Delete Book */
+        app.delete('/book/:id', async(req, res) => {
+            const id = req.params.id;
+            const query1 = {_id: ObjectId(id)};
+            const query2 = {_id: id};
+            const users = await booksCollection.deleteOne(query1);
+            const advertise = await advertiseCollection.deleteOne(query2);
+            res.send(users, advertise);
+        })
+
+        /* Book Advertise */
+        app.put('/book/advertise/:id', async(req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    advertise: 'yes'
+                }
+            };
+            const result = await booksCollection.updateOne(filter, updateDoc, options);
             res.send(result);
         });
 
