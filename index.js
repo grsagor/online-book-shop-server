@@ -113,7 +113,7 @@ async function run() {
             console.log(user);
             res.status(403).send({accessToken: ''});
         })
-/* User Add */
+        /* User Add */
         app.post('/users', async (req, res) => {
             const body = req.body;
             const result = await usersCollection.insertOne(body);
@@ -162,6 +162,27 @@ async function run() {
             const updateDoc = {
                 $set: {
                     role: 'admin'
+                }
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
+
+        /* Verified Seller */
+        app.put('/users/verifyseller/:id',verifyJWT, async(req, res) => {
+            const decodedEmail = req.decoded.email;
+            const query = {email: decodedEmail};
+            const user = await usersCollection.findOne(query);
+            if(user?.role !== 'admin'){
+                return res.status(403).send({messasge: 'forbidden'})
+            }
+
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    verifiedSeller: 'yes'
                 }
             };
             const result = await usersCollection.updateOne(filter, updateDoc, options);
